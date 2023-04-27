@@ -3,19 +3,26 @@ Little helper command line tool to list arguments received in a easy to inspect 
 
 ## Install
 
+Download:
 ```
-# download
 curl -O 'https://raw.githubusercontent.com/fabianoengler/listargs/master/bin/listargs'
+```
 
-# set executable permission
+Set executable permission:
+```
 chmod +x listargs
+```
 
-# test to check it's working
+Verify it's working:
+```
 ./listargs "arg1" "arg with spaces" "
+```
 
-# optionally copy to your path:
+Optionally copy to your path:
+```
 sudo cp -v listargs /usr/local/bin
 ```
+
 
 ## Usage
 
@@ -38,7 +45,7 @@ of colors:
 listargs "arg with spaces" "two  spaces" and$'\t'tab "  startendspace  " | cat
 ```
 
-Enble compact mode:
+Enable compact mode:
 ```
 LA_COMPACT=1 listargs "two  spaces" with$'\t'tab "  start-end-space  "
 ```
