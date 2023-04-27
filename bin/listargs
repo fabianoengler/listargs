@@ -1,0 +1,78 @@
+#!/bin/bash
+
+# listargs
+# v0.1
+#
+# Copyright (c) 2023, Fabiano Engler
+# BSD 2-Clause License
+# https://github.com/fabianoengler/listargs
+
+
+[[ -t 1 ]] && is_term=true || is_term=false
+
+: ${LA_COMPACT:=false}
+[ "$LA_COMPACT" == "1" ] && LA_COMPACT=true
+: ${LA_STDERR:=false}
+[ "$LA_STDERR" == "1" ] && LA_STDERR=true
+: ${LA_HIGHLIGHT:="$is_term"}
+[ "$LA_HIGHLIGHT" == "1" ] && LA_HIGHLIGHT=true
+: ${LA_ESCAPE_BAR:=$( $LA_HIGHLIGHT && echo false || echo true )}
+: ${LA_ESCAPE_ESPACE:=$( $LA_HIGHLIGHT && echo false || echo true )}
+[ "$LA_ESCAPE_BAR" == "1" ] && LA_ESCAPE_BAR=true
+[ "$LA_ESCAPE_ESPACE" == "1" ] && LA_ESCAPE_ESPACE=true
+
+HIGHLIGHT_CODE='\e[0;30;46m'
+HIGHLIGHT_SPECIAL_CODE='\e[0;31;46m'
+HIGHLIGHT_END='\e[m'
+
+if $LA_HIGHLIGHT
+then
+    hl1="$HIGHLIGHT_CODE"
+    hl2="$HIGHLIGHT_END"
+    hls1="$HIGHLIGHT_SPECIAL_CODE"
+    hls2="$HIGHLIGHT_CODE"
+else
+    hl1=""
+    hl2=""
+    hls1=""
+    hls2=""
+fi
+
+
+# ## debug
+# declare -p -- LA_HIGHLIGHT LA_COMPACT LA_ESCAPE_BAR LA_ESCAPE_ESPACE > /dev/stderr
+
+$LA_ESCAPE_BAR && escaped_bar="$hls1\\\\\\\\$hls2" || escaped_bar='\\'
+$LA_ESCAPE_ESPACE && escaped_space="\\ " || escaped_bar='\\'
+
+escape() {
+    local val="$1"
+
+    val=${val//\\/$escaped_bar} # \
+    $LA_ESCAPE_ESPACE && val=${val// /\\\\ }
+    val=${val//$'\e'/$hls1\\\\e$hls2} # \t (tab)
+    val=${val//$'\t'/$hls1\\\\t$hls2} # \t (tab)
+    val=${val//$'\n'/$hls1\\\\n$hls2} # \n (newline)
+    val=${val//$'\r'/$hls1\\\\r$hls2} # \r (carriage return)
+    val=${val//$'\f'/$hls1\\\\f$hls2} # \f (form feed)
+    val=${val//$'\b'/$hls1\\\\b$hls2} # \b (backspace)
+    printf "%s" "${hl1}${val}${hl2}"
+}
+
+arg_highlight() {
+    $LA_COMPACT || echo -n "$1: "
+    printf "%b" "$(escape "$2")"
+    $LA_COMPACT && echo -n ' ' || echo
+}
+
+$LA_STDERR && outfd=2 || outfd=1
+
+$LA_COMPACT || arg_highlight 0 "$0" >&"$outfd"
+i=1
+
+for arg
+do
+    arg_highlight $i "$arg" >&"$outfd"
+    let i++
+done
+$LA_COMPACT && echo >&"$outfd"
