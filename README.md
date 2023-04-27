@@ -1,5 +1,11 @@
 # listargs
-Little helper command line tool to list arguments received in a easy to inspect way
+Little helper command line tool that list arguments received in a easy to inspect way.
+
+
+## Screenshots
+
+![Screenshot1](docs/images/listargs-screenshot-001.png)
+
 
 ## Install
 
